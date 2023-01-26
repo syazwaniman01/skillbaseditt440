@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[])
+{
+    int sock;
+    struct sockaddr_in server;
+    int random_number;
+
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1)
+    {
+        printf("Could not create socket");
+    }
+
+    server.sin_addr.s_addr = inet_addr("192.168.100.204");
+    server.sin_family = AF_INET;
+    server.sin_port = htons(8080);
+
+    
+    if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0)
+    {
+        perror("connect failed. Error");
+        return 1;
+    }
+
+    puts("Connected\n");
+
+    if(read(sock, &random_number, sizeof(random_number)) < 0)
+    {
+        perror("read failed");
+    }
+
+    // Display the received random number
+    printf("Random number received from server: %d\n", random_number);
+
+    close(sock);
+    return 
