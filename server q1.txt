@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[])
+{
+    int server_socket, client_socket;
+    struct sockaddr_in server, client;
+    int c, read_size;
+    char client_message[2000];
+
+    
+    server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_socket == -1)
+    {
+        printf("Could not create socket");
+    }
+    puts("Socket created");
+
+    
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons(8080);
+
+    
+    if (bind(server_socket, (struct sockaddr *)&server, sizeof(server)) < 0)
+    {
+        perror("bind failed. Error");
+        return 1;
+    }
+    puts("bind done");
+
+    
+    listen(server_socket, 3);
+
+    
+    puts("Waiting for incoming connections...");
+    c = sizeof(struct sockaddr_in);
+
+    client_socket = accept(server_socket, (struct sockaddr *)&client, (socklen_t *)&c);
+    if (client_socket < 0)
+    {
+        perror("accept failed");
+        return 1;
+    }
+    puts("Connection accepted");
+
+    int random_number = 100 + rand() % 900;
+
+    write(client_socket, &random_number, sizeof(random_number));
+
+    close(server_socket);
+
+    return 0;
+} 
